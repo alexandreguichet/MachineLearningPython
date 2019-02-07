@@ -28,7 +28,7 @@ class PreprocessingData:
         from sklearn.model_selection import train_test_split
         self.independantVariables_TrainingSet, self.independantVariables_TestSet, self.dependantVariables_TrainingSet, self.dependantVariables_TestSet = train_test_split(self.independantVariables, 
                                                                                                                                               self.dependantVariables, 
-                                                                                                                                              test_size = 0.2, 
+                                                                                                                                              test_size = 1/3, 
                                                                                                                                               random_state = 0)
 
     #Taking care of missing data
@@ -43,9 +43,13 @@ class PreprocessingData:
     def encode_categorical_data(self):       
         from sklearn.preprocessing import LabelEncoder, OneHotEncoder
         labelEncoderIndependantVariables = LabelEncoder()
-        self.independantVariables[:, 0] = labelEncoderIndependantVariables.fit_transform(self.independantVariables[:, 0])
-        oneHotEncoderIndependantVariables = OneHotEncoder(categorical_features= [0])
-        self.independantVariables = oneHotEncoderIndependantVariables.fit_transform(self.independantVariables).toarray()
+        for x in range (0, self.dataset.shape[1]):
+            print("I enter the for loop")
+            if type(self.dataset.iloc[1, x]) == str:
+                print("I found a category in my column ! (str)")
+                self.independantVariables[:, x] = labelEncoderIndependantVariables.fit_transform(self.independantVariables[:, x])
+                oneHotEncoderIndependantVariables = OneHotEncoder(categorical_features= [x])
+                self.independantVariables = oneHotEncoderIndependantVariables.fit_transform(self.independantVariables).toarray()
 
     #TODO: change the line bellow if we need more than two variables output (Else than a yes/no answer)
         labelEncoderDependantVariables = LabelEncoder()
@@ -57,3 +61,10 @@ class PreprocessingData:
         scale_independantVariables= StandardScaler()
         self.independantVariables_TrainingSet = scale_independantVariables.fit_transform(self.independantVariables_TrainingSet)
         self.independantVariables_TestSet = scale_independantVariables.transform(self.lindependantVariables_TestSet)
+        
+    def get_imported_variables(self):
+        return self.dataset, self.independantVariables, self.independantVariables
+    
+    def get_trainingSet_variables(self):
+        return self.independantVariables_TrainingSet, self.independantVariables_TestSet, self.dependantVariables_TrainingSet, self.dependantVariables_TestSet
+    
